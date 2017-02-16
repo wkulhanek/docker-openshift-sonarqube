@@ -1,7 +1,7 @@
 FROM jboss/base-jdk:8
-MAINTAINER Erik Jacobs <erikmjacobs@gmail.com>
+MAINTAINER Wolfgang Kulhanek <wkulhane@redhat.com>
 
-ENV SONAR_VERSION=6.0 \
+ENV SONAR_VERSION=6.2 \
     SONARQUBE_HOME=/opt/sonarqube
 
 USER root
@@ -15,8 +15,8 @@ RUN cd /tmp \
     && rm /tmp/sonarqube.zip*
 COPY run.sh $SONARQUBE_HOME/bin/
 
-RUN useradd -r sonar
-RUN /usr/bin/fix-permissions /opt/sonarqube \
+RUN useradd -r sonar \
+    && /usr/bin/fix-permissions /opt/sonarqube \
     && chmod 775 $SONARQUBE_HOME/bin/run.sh
 
 USER sonar
