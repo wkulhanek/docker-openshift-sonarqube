@@ -1,7 +1,7 @@
-FROM jboss/base-jdk:8
+FROM registry.access.redhat.com/redhat-openjdk-18/openjdk18-openshift
 MAINTAINER Wolfgang Kulhanek <wkulhane@redhat.com>
 
-ENV SONAR_VERSION=6.2 \
+ENV SONAR_VERSION=6.3 \
     SONARQUBE_HOME=/opt/sonarqube
 
 USER root
