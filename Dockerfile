@@ -1,7 +1,7 @@
-FROM registry.access.redhat.com/redhat-openjdk-18/openjdk18-openshift
+FROM registry.access.redhat.com/redhat-openjdk-18/openjdk18-openshift:latest
 MAINTAINER Wolfgang Kulhanek <wkulhane@redhat.com>
 
-ENV SONAR_VERSION=6.3 \
+ENV SONAR_VERSION=6.3.1 \
     SONARQUBE_HOME=/opt/sonarqube
 
 USER root
