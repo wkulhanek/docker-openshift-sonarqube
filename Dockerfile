@@ -21,4 +21,6 @@ RUN useradd -r sonar \
 
 USER sonar
 WORKDIR $SONARQUBE_HOME
+VOLUME $SONARQUBE_HOME/data
+
 ENTRYPOINT ["./bin/run.sh"]
