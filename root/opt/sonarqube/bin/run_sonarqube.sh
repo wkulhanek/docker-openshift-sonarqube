@@ -6,10 +6,49 @@ if [ "${1:0:1}" != '-' ]; then
   exec "$@"
 fi
 
+echo "**** Setting up SonarQube Data Volume"
+echo "**** Checking if extensions directory exists in data"
+if [ ! -d "/opt/sonarqube/data/extensions" ];
+then
+  echo "**** Initial Setup"
+  # For initial setup move extensions into the data directory (on a PVC)
+  mv /opt/sonarqube/extensions /opt/sonarqube/data
+else
+  echo "**** Secondary Setup"
+  # For secondary setup just remove the extensions directory from /opt/sonarqube
+  # The contents are already in /opt/sonarqube/data/extensions which will be linked
+  # back into /opt/sonarqube
+  rm -rf /opt/sonarqube/extensions
+fi
+# Now link the extensions from the PVC into the expected location
+ln -s /opt/sonarqube/data/extensions /opt/sonarqube
+# Now make sure all plugins are in the plugins directory - this is especially
+# important after adding a PVC.
+# Sonarqube ships a selection of plugins in the /opt/sonarqube/lib/bundled-plugins directory.
+for plugin in /opt/sonarqube/lib/bundled-plugins/*
+do
+  # Get the name of the plugin without any version number.
+  # E.g. sonar-java-plugin instead of sonar-java-plugin-4.12.0.11033.jar
+  plugin_base_name=$(basename ${plugin%-*})
+
+  # For each plugin make sure it doesn't already exist in the data/extensions
+  # directory. If it doesn't then copy it to the data/extensions directory.
+  echo "  ++++ checking if plugin ${plugin_base_name} is already installed"
+  if [ $(ls /opt/sonarqube/data/extensions/plugins/${plugin_base_name}* 2>/dev/null|wc -l) == 0 ];
+  then
+    echo "  ++++ Installing plugin ${plugin}..."
+    cp ${plugin} /opt/sonarqube/data/extensions/plugins
+  else
+    echo "  ++++ Plugin ${plugin_base_name} already installed."
+  fi
+done
+echo "**** Setting up Data Volume complete"
+
+# Finally start SonarQube
 exec java -jar lib/sonar-application-$SONAR_VERSION.jar \
-  -Dsonar.log.console=true \
-  -Dsonar.jdbc.username="$SONARQUBE_JDBC_USERNAME" \
-  -Dsonar.jdbc.password="$SONARQUBE_JDBC_PASSWORD" \
-  -Dsonar.jdbc.url="$SONARQUBE_JDBC_URL" \
-  -Dsonar.web.javaAdditionalOpts="$SONARQUBE_WEB_JVM_OPTS -Djava.security.egd=file:/dev/./urandom" \
-  "$@"
+-Dsonar.log.console=true \
+-Dsonar.jdbc.username="$SONARQUBE_JDBC_USERNAME" \
+-Dsonar.jdbc.password="$SONARQUBE_JDBC_PASSWORD" \
+-Dsonar.jdbc.url="$SONARQUBE_JDBC_URL" \
+-Dsonar.web.javaAdditionalOpts="$SONARQUBE_WEB_JVM_OPTS -Djava.security.egd=file:/dev/./urandom" \
+"$@"

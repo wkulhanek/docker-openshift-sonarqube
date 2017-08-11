@@ -1,29 +1,45 @@
 # SonarQube on OpenShift
-This repo contains all of the resources required to build an OpenShift-specific
-Docker image of SonarQube 6.2.
+This repo contains all of the resources required to build an OpenShift-specific Docker image of SonarQube 6.5.
 
 It is inspired by the upstream SonarQube Docker image:
 https://github.com/SonarSource/docker-sonarqube/tree/master/5.5
 
 ## Quick usage
-You can do something like the following, assuming you are in an existing
-OpenShift project:
+You can do something like the following, assuming you are in an existing OpenShift project:
 
-    oc new-app postgresql-persistent \
-    --param POSTGRESQL_USER=sonar --param POSTGRESQL_PASSWORD=sonar --param POSTGRESQL_DATABASE=sonar --param VOLUME_CAPACITY=5Gi -lapp=sonarqube_db
-    oc new-app docker.io/wkulhanek/sonarqube \
-    -e SONARQUBE_JDBC_USERNAME=sonar -e SONARQUBE_JDBC_PASSWORD=sonar -e SONARQUBE_JDBC_URL=jdbc:postgresql://postgresql/sonar
-    oc expose service sonarqube
+[source,bash]
+----
+oc new-app postgresql-persistent \
+--param POSTGRESQL_USER=sonar --param POSTGRESQL_PASSWORD=sonar --param POSTGRESQL_DATABASE=sonar --param VOLUME_CAPACITY=4Gi -lapp=sonarqube_db
 
-This will result in your OpenShift environment deploying the included PostgreSQL
-database with persistent storage and then deploying the SonarQube image directly
-from DockerHub.
+oc new-app docker.io/wkulhanek/sonarqube:latest \
+-e SONARQUBE_JDBC_USERNAME=sonar -e SONARQUBE_JDBC_PASSWORD=sonar -e SONARQUBE_JDBC_URL=jdbc:postgresql://postgresql/sonar
+
+oc expose service sonarqube --port=9000
+
+echo "apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sonarqube-pvc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 4Gi" | oc create -f -
+oc set volume dc/sonarqube --add --overwrite --name=sonarqube-volume-1 --mount-path=/opt/sonarqube/data/ --type persistentVolumeClaim --claim-name=sonarqube-pvc
+----
+
+This will result in your OpenShift environment deploying the included PostgreSQL database with persistent storage and then deploying the SonarQube image directly from DockerHub. It will also set up a PersistentVolumeClaim for SonarQube to store plugins and other data.
 
 ## Probes
-If you want to you can create Readiness and Liveness Probes:
+You should create Readiness and Liveness Probes for OpenShift to monitor the health of the SonarQube pod:
 
-    oc set probe dc/sonarqube --liveness --failure-threshold 3 --initial-delay-seconds 60 -- echo ok
-    oc set probe dc/sonarqube --readiness --failure-threshold 3 --initial-delay-seconds 60 --get-url=http://:9000/about
+[source,bash]
+----
+oc set probe dc/sonarqube --liveness --failure-threshold 3 --initial-delay-seconds 40 -- echo ok
+oc set probe dc/sonarqube --readiness --failure-threshold 3 --initial-delay-seconds 20 --get-url=http://:9000/about
+----
 
 ## ToDos
 * Write an OpenShift template
