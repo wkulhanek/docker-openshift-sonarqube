@@ -15,8 +15,8 @@ RUN cd /tmp \
 ADD root /
 
 RUN useradd -r sonar \
-    && /usr/bin/fix-permissions /opt/sonarqube \
-    && chmod 775 $SONARQUBE_HOME/bin/run_sonarqube.sh
+    && chmod 775 $SONARQUBE_HOME/bin/run_sonarqube.sh \
+    && /usr/bin/fix-permissions /opt/sonarqube
 
 USER sonar
 WORKDIR $SONARQUBE_HOME
