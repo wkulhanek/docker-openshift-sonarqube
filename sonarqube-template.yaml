@@ -18,6 +18,9 @@ objects:
       to:
         kind: "ImageStreamTag"
         name: "sonarqube:latest"
+    triggers:
+    - type: ImageChange
+    - type: ConfigChange
 - apiVersion: v1
   kind: ImageStream
   metadata:
@@ -32,6 +35,8 @@ objects:
         insecure: true
       referencePolicy:
         type: Source
+    triggers:
+    - type: ConfigChange
 - kind: PersistentVolumeClaim
   apiVersion: v1
   metadata:
@@ -115,6 +120,16 @@ objects:
         - name: postgresql-data
           persistentVolumeClaim:
             claimName: "${DATABASE_SERVICE_NAME}"
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - sonarqube
+        from:
+          kind: ImageStreamTag
+          name: sonarqube:latest
+      type: ImageChange
+    - type: ConfigChange
     test: false
 - apiVersion: v1
   kind: DeploymentConfig
