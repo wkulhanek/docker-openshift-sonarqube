@@ -6,7 +6,7 @@ objects:
 - apiVersion: "v1"
   kind: "BuildConfig"
   metadata:
-    name: "sonarqube" 
+    name: "sonarqube"
   spec:
     source:
       type: Git
@@ -121,14 +121,6 @@ objects:
           persistentVolumeClaim:
             claimName: "${DATABASE_SERVICE_NAME}"
     triggers:
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-        - sonarqube
-        from:
-          kind: ImageStreamTag
-          name: sonarqube:latest
-      type: ImageChange
     - type: ConfigChange
     test: false
 - apiVersion: v1
