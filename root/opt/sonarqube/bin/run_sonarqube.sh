@@ -19,6 +19,10 @@ else
   # The contents are already in /opt/sonarqube/data/extensions which will be linked
   # back into /opt/sonarqube
   rm -rf /opt/sonarqube/extensions
+  if [ ! -f /opt/sonarqube/data/es5/nodes/0/node.lock ]
+  then
+    rm -f /opt/sonarqube/data/es5/nodes/0/node.lock
+  fi
 fi
 # Now link the extensions from the PVC into the expected location
 ln -s /opt/sonarqube/data/extensions /opt/sonarqube
@@ -43,6 +47,24 @@ do
   fi
 done
 echo "**** Setting up Data Volume complete"
+
+# Determine UID and GID under which the container is running
+export USER_ID=$(id -u)
+export GROUP_ID=$(id -g)
+
+# Make a copy of /etc/passwd in /opt/sonarqube/data/passwd excluding
+# the `sonar` user.
+grep -v ^sonar /etc/passwd > "/opt/sonarqube/data/passwd"
+
+# Add the sonar user to the $HOME/passwd file with the current
+# UID and GID
+echo "sonar:x:${USER_ID}:${GROUP_ID}::/opt/sonarqube/data:/bin/bash" >> "/opt/sonarqube/data/passwd"
+
+# Point CentOS to this new passwd file instead of the system
+# passwd file to make sure the gogs user is correctly assigned
+export LD_PRELOAD=libnss_wrapper.so
+export NSS_WRAPPER_PASSWD=/opt/sonarqube/data/passwd
+export NSS_WRAPPER_GROUP=/etc/group
 
 # Finally start SonarQube
 exec java -jar lib/sonar-application-$SONAR_VERSION.jar \
