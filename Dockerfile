@@ -9,7 +9,7 @@ LABEL name="SonarQube" \
       io.k8s.description="Provide a SonarQube image to run on Red Hat OpenShift" \
       io.openshift.expose-services="9000" \
       io.openshift.tags="sonarqube" \
-      build-date="2018-03-02" \
+      build-date="2018-04-16" \
       version=$SONAR_VERSION \
       release="1"
 
