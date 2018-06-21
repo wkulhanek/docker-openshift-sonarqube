@@ -31,24 +31,29 @@ ln -s /opt/sonarqube/data/extensions /opt/sonarqube
 # Sonarqube ships a selection of plugins in the /opt/sonarqube/lib/bundled-plugins directory.
 
 #For 7.2 this code does not work, lib/bundled-plugins was moved to extensions/plugins
+if [ -d "/opt/sonarqube/lib/bundled-plugins" ];
+then
+  echo "**** Sonarqube Version < 7.2 Detected"
+  for plugin in /opt/sonarqube/lib/bundled-plugins/*
+  do
+    # Get the name of the plugin without any version number.
+    # E.g. sonar-java-plugin instead of sonar-java-plugin-4.12.0.11033.jar
+    plugin_base_name=$(basename ${plugin%-*})
 
-#for plugin in /opt/sonarqube/lib/bundled-plugins/*
-#do
-  # Get the name of the plugin without any version number.
-  # E.g. sonar-java-plugin instead of sonar-java-plugin-4.12.0.11033.jar
-  #plugin_base_name=$(basename ${plugin%-*})
-
-  # For each plugin make sure it doesn't already exist in the data/extensions
-  # directory. If it doesn't then copy it to the data/extensions directory.
-  #echo "  ++++ checking if plugin ${plugin_base_name} is already installed"
-  #if [ $(ls /opt/sonarqube/data/extensions/plugins/${plugin_base_name}* 2>/dev/null|wc -l) == 0 ];
-  #then
-    #echo "  ++++ Installing plugin ${plugin}..."
-    #cp ${plugin} /opt/sonarqube/data/extensions/plugins
-  #else
-    #echo "  ++++ Plugin ${plugin_base_name} already installed."
-  #fi
-#done
+    # For each plugin make sure it doesn't already exist in the data/extensions
+    # directory. If it doesn't then copy it to the data/extensions directory.
+    echo "  ++++ checking if plugin ${plugin_base_name} is already installed"
+    if [ $(ls /opt/sonarqube/data/extensions/plugins/${plugin_base_name}* 2>/dev/null|wc -l) == 0 ];
+    then
+      echo "  ++++ Installing plugin ${plugin}..."
+      cp ${plugin} /opt/sonarqube/data/extensions/plugins
+    else
+      echo "  ++++ Plugin ${plugin_base_name} already installed."
+    fi
+  done
+else
+  echo "**** Sonarqube Version > 7.2 Detected"
+fi
 echo "**** Setting up Data Volume complete"
 
 # Determine UID and GID under which the container is running
