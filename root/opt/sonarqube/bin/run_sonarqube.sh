@@ -26,10 +26,22 @@ else
 fi
 # Now link the extensions from the PVC into the expected location
 ln -s /opt/sonarqube/data/extensions /opt/sonarqube
+
+#Added for 7.2 this code does not work, lib/bundled-plugins was moved to extensions/plugins
+plugin_folder=""
+if [ -d "/opt/sonarqube/lib/bundled-plugins" ];
+then
+  echo "**** Sonarqube Version < 7.2 Detected"
+  plugin_folder="/opt/sonarqube/lib/bundled-plugins/*"
+else
+  echo "**** Sonarqube Version > 7.2 Detected"
+  plugin_folder="/opt/sonarqube/extensions/plugins/*"
+fi
+
 # Now make sure all plugins are in the plugins directory - this is especially
 # important after adding a PVC.
 # Sonarqube ships a selection of plugins in the /opt/sonarqube/lib/bundled-plugins directory.
-for plugin in /opt/sonarqube/lib/bundled-plugins/*
+for plugin in $plugin_folder
 do
   # Get the name of the plugin without any version number.
   # E.g. sonar-java-plugin instead of sonar-java-plugin-4.12.0.11033.jar
