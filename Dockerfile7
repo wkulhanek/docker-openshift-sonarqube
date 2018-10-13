@@ -22,7 +22,7 @@ RUN yum -y install epel-release \
     && yum clean all \
     && rm -rf /var/cache/yum \
     && cd /tmp \
-    && curl -o sonarqube.zip -fSL https://sonarsource.bintray.com/Distribution/sonarqube/sonarqube-$SONAR_VERSION.zip \
+    && curl -o sonarqube.zip -fSL https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-$SONAR_VERSION.zip \
     && cd /opt \
     && unzip /tmp/sonarqube.zip \
     && mv sonarqube-$SONAR_VERSION sonarqube \
