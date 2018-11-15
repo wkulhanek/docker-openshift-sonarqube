@@ -1,6 +1,6 @@
 #!/bin/bash
 export VERSION=6.7.5
-docker build . -t wkulhanek/sonarqube:${VERSION}
-#docker tag wkulhanek/sonarqube:${VERSION} wkulhanek/sonarqube:latest
-docker push wkulhanek/sonarqube:${VERSION}
-#docker push wkulhanek/sonarqube:latest
+docker build . -t docker.io/wkulhanek/sonarqube:${VERSION}
+#docker tag docker.io/wkulhanek/sonarqube:${VERSION} docker.io/wkulhanek/sonarqube:latest
+docker push docker.io/wkulhanek/sonarqube:${VERSION}
+#docker push docker.io/wkulhanek/sonarqube:latest
