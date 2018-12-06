@@ -1,7 +1,7 @@
 FROM docker.io/centos:7
 LABEL maintainer="Wolfgang Kulhanek <WolfgangKulhanek@gmail.com>"
 
-ENV SONAR_VERSION=6.7.5 \
+ENV SONAR_VERSION=6.7.6 \
     SONARQUBE_HOME=/opt/sonarqube
 
 LABEL name="SonarQube" \
@@ -9,7 +9,7 @@ LABEL name="SonarQube" \
       io.k8s.description="Provide a SonarQube image to run on Red Hat OpenShift" \
       io.openshift.expose-services="9000" \
       io.openshift.tags="sonarqube" \
-      build-date="2018-10-12" \
+      build-date="2018-12-05" \
       version=$SONAR_VERSION \
       release="1"
 
