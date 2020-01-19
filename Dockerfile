@@ -1,7 +1,7 @@
 FROM docker.io/centos:7
 LABEL maintainer="Wolfgang Kulhanek <WolfgangKulhanek@gmail.com>"
 
-ENV SONAR_VERSION=6.7.6 \
+ENV SONAR_VERSION=7.9.2 \
     SONARQUBE_HOME=/opt/sonarqube
 
 LABEL name="SonarQube" \
@@ -9,7 +9,7 @@ LABEL name="SonarQube" \
       io.k8s.description="Provide a SonarQube image to run on Red Hat OpenShift" \
       io.openshift.expose-services="9000" \
       io.openshift.tags="sonarqube" \
-      build-date="2019-01-20" \
+      build-date="2020-01-19" \
       version=$SONAR_VERSION \
       release="1"
 
@@ -18,7 +18,7 @@ EXPOSE 9000
 RUN yum -y install epel-release \
     && yum repolist \
     && yum -y update \
-    && yum -y install unzip java-1.8.0-openjdk nss_wrapper \
+    && yum -y install unzip java-11-openjdk nss_wrapper nodejs\
     && yum clean all \
     && rm -rf /var/cache/yum \
     && cd /tmp \
